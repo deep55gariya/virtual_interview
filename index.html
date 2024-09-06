@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual AI Interviewer</title>
+    <link rel="stylesheet" href="./style3.css">
+</head>
+
+<body>
+    <!-- Video Element for Background -->
+    <div id="backgroundVideoContainer">
+        <video id="backgroundVideo" autoplay muted loop>
+          <source src="video1.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      
+
+    <section>
+        <h1>Virtual AI Interviewer</h1>
+        <p>Available In Chrome Only</p>
+        <div id="uploadSection">
+            <input type="file" id="resume" accept=".pdf,.doc,.docx">
+            <select id="jobRole">
+                <option value="" disabled selected>Interview type</option>
+                <option value="hr interview">HR Interview</option>
+                <option value="software development technical interview">Software Development Technical Interview</option>
+                <option value="ml technical interview">ML Technical Interview</option>
+                <option value="application development technical interview">Application Development Technical Interview</option>
+            </select>
+            <button id="start">Start Interview</button>
+        </div>
+        <div id="container" style="display:none;">
+            <div class="texts"></div>
+            <button id="answerComplete" disabled>Complete Answer</button>
+            <button id="stop" disabled>Stop Interview</button>
+        </div>
+        <div id="thankYouMessage" style="display:none;"></div>
+        <!-- Feedback Section -->
+        <div id="feedbackBlock" style="display: none;">
+            <h2>Feedback</h2>
+            <textarea id="feedback" rows="4" cols="50" placeholder="Please provide your feedback here..."></textarea>
+            <button id="submitFeedback">Submit Feedback</button>
+        </div>
+        <div id="downloadButton">
+            <button class="downloadButton1" style="display: none;"> Download PDF</button>
+        </div>
+    </section>
+    <script src="./main3.js"></script>
+</body>
+
+</html>
