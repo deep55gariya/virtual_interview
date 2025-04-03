@@ -6,49 +6,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Virtual AI Interviewer</title>
     <link rel="stylesheet" href="./style.css">
+    <!-- Add basic styling for new elements if needed in style.css -->
+    <style>
+        #atsScoreDisplay, #atsTipsDisplay {
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        #atsTipsDisplay {
+             background-color: #f0f8ff;
+        }
+        #loadingIndicator {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #007bff;
+        }
+         #proceedInterviewBtn, #downloadPdfBtn { /* Style the proceed and download button */
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        #proceedInterviewBtn:disabled, #downloadPdfBtn:disabled {
+             background-color: #cccccc;
+             cursor: not-allowed;
+         }
+         #downloadButton { /* Keep the div for potential layout */
+             margin-top: 10px;
+         }
+
+    </style>
 </head>
 
 <body>
     <!-- Video Element for Background -->
     <div id="backgroundVideoContainer">
         <video id="backgroundVideo" autoplay muted loop>
+          <!-- Provide a valid path to your video file -->
           <source src="video1.mp4" type="video/mp4">
           Your browser does not support the video tag.
         </video>
       </div>
-      
 
     <section>
         <h1>Virtual AI Interviewer</h1>
         <p>Available In Chrome Only</p>
+
+        <!-- 1. Upload Section -->
         <div id="uploadSection">
-            <input type="file" id="resume" accept=".pdf,.doc,.docx">
+            <input type="file" id="resume" accept=".pdf,.doc,.docx,.txt">
             <select id="jobRole">
-                <option value="" disabled selected>Interview type</option>
+                <option value="" disabled selected>Select Interview Type</option>
                 <option value="hr interview">HR Interview</option>
                 <option value="software development technical interview">Software Development Technical Interview</option>
                 <option value="ml technical interview">ML Technical Interview</option>
                 <option value="application development technical interview">Application Development Technical Interview</option>
+                <option value="Resume Based Interview">Resume Based Interview</option>
             </select>
-            <button id="start">Start Interview</button>
+            <button id="start">Analyze Resume & Prepare</button> <!-- Changed Button Text -->
         </div>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" style="display: none;">Processing...</div>
+
+        <!-- 2. ATS Score and Proceed Section -->
+        <div id="atsDisplaySection" style="display: none;">
+             <div id="atsScoreDisplay">
+                 <!-- ATS Score will be loaded here -->
+             </div>
+             <div id="atsTipsDisplay">
+                 <!-- ATS Tips will be loaded here -->
+             </div>
+             <button id="proceedInterviewBtn">Start Interview</button> <!-- New Proceed Button -->
+        </div>
+
+        <!-- 3. Interview Container -->
         <div id="container" style="display:none;">
-            <div class="texts"></div>
+            <div class="texts">
+                <!-- Questions and Answers will appear here -->
+            </div>
             <button id="answerComplete" disabled>Complete Answer</button>
             <button id="stop" disabled>Stop Interview</button>
         </div>
-        <div id="thankYouMessage" style="display:none;"></div>
-        <!-- Feedback Section -->
-        <div id="feedbackBlock" style="display: none;">
-            <h2>Feedback</h2>
-            <textarea id="feedback" rows="4" cols="50" placeholder="Please provide your feedback here..."></textarea>
-            <button id="submitFeedback">Submit Feedback</button>
+
+        <!-- 4. Post-Interview Section -->
+        <div id="postInterviewSection" style="display: none;">
+             <div id="thankYouMessage"></div>
+             <!-- Feedback Section -->
+             <div id="feedbackBlock">
+                 <h2>Feedback</h2>
+                 <textarea id="feedback" rows="4" cols="50" placeholder="Please provide your feedback here..."></textarea>
+                 <button id="submitFeedback">Submit Feedback</button>
+             </div>
+             <!-- Download Button Area -->
+             <div id="downloadButton">
+                 <!-- Changed button inside div to have ID -->
+                 <button id="downloadPdfBtn" class="downloadButton1"> Download Summary PDF</button>
+             </div>
         </div>
-        <div id="downloadButton">
-            <button class="downloadButton1" style="display: none;"> Download PDF</button>
-        </div>
+
     </section>
+
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Your main script -->
     <script src="./main.js"></script>
 </body>
-
 </html>
