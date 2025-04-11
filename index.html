@@ -8,22 +8,31 @@
     <link rel="stylesheet" href="./style.css">
     <!-- Add basic styling for new elements if needed in style.css -->
     <style>
+        /* --- Existing Styles --- */
         #atsScoreDisplay, #atsTipsDisplay {
             margin-top: 15px;
             padding: 10px;
             border: 1px solid #ccc;
-            background-color: #f9f9f9;
+            background-color: rgba(249, 249, 249, 0.8); /* Lighter with transparency */
+            color: #333; /* Darker text */
             border-radius: 5px;
+            border: 1px solid #aaa; /* Adjusted border for visibility */
+            max-width: 600px; /* Limit width */
+            margin-left: auto; /* Center block */
+            margin-right: auto; /* Center block */
+            text-align: left; /* Align text inside left */
         }
         #atsTipsDisplay {
-             background-color: #f0f8ff;
+             background-color: rgba(240, 248, 255, 0.8); /* Lighter AliceBlue with transparency */
+             color: #333; /* Darker text */
         }
         #loadingIndicator {
             margin-top: 20px;
             font-weight: bold;
-            color: #007bff;
+            color: #00bfff; /* Brighter blue for visibility */
+            text-shadow: 0 0 5px rgba(0,0,0,0.5); /* Add shadow for contrast */
         }
-         #proceedInterviewBtn, #downloadPdfBtn { /* Style the proceed and download button */
+         #proceedInterviewBtn, #downloadPdfBtn, #backToHomeBtn { /* Added #backToHomeBtn */
             margin-top: 15px;
             padding: 10px 20px;
             background-color: #28a745;
@@ -32,14 +41,244 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.1s ease; /* Added transition */
+            margin-left: 5px; /* Add some space between buttons */
+            margin-right: 5px;
         }
-        #proceedInterviewBtn:disabled, #downloadPdfBtn:disabled {
+        #proceedInterviewBtn:hover, #downloadPdfBtn:hover, #backToHomeBtn:hover { /* Added #backToHomeBtn */
+             background-color: #218838;
+             transform: translateY(-2px);
+         }
+         #proceedInterviewBtn:disabled, #downloadPdfBtn:disabled, #backToHomeBtn:disabled { /* Added #backToHomeBtn */
              background-color: #cccccc;
              cursor: not-allowed;
+             transform: none; /* Disable transform when disabled */
          }
          #downloadButton { /* Keep the div for potential layout */
              margin-top: 10px;
+             /* Ensure buttons inside are centered if needed */
+             text-align: center;
          }
+         /* Specific style for Back to Home button */
+         #backToHomeBtn {
+            background-color: #007bff; /* Blue color */
+         }
+         #backToHomeBtn:hover {
+            background-color: #0056b3; /* Darker blue */
+         }
+
+
+         /* --- New Styles for Practice Button --- */
+        .practice-intro-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #007bff; /* Blue background */
+            color: white;
+            text-decoration: none; /* Remove underline from link */
+            border-radius: 25px; /* Pill shape */
+            font-size: 0.9em;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 10; /* Ensure it's above other elements */
+        }
+
+        .practice-intro-btn:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+            transform: translateY(-2px); /* Slight lift effect */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .practice-intro-btn:active {
+            transform: translateY(0); /* Push down effect */
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- Responsiveness for Practice Button --- */
+        @media (max-width: 600px) {
+            .practice-intro-btn {
+                position: relative; /* Change positioning */
+                display: block; /* Make it a block element */
+                width: fit-content; /* Adjust width to content */
+                margin: 15px auto 10px auto; /* Center it with margin */
+                top: auto; /* Reset top/right */
+                right: auto;
+            }
+            section#mainContentSection { /* Target specific section */
+                 padding-top: 10px;
+            }
+        }
+
+        /* --- Video Background Style --- */
+         #backgroundVideoContainer {
+            position: fixed; /* Fix position */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Put it behind everything */
+            overflow: hidden; /* Hide overflow */
+          }
+          #backgroundVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Cover the entire container */
+            filter: brightness(0.4); /* Optional: Darken video for text readability */
+          }
+          body {
+            position: relative;
+            background-color: transparent; /* Or none */
+            color: white; /* Change text color for better contrast with dark video */
+            font-family: sans-serif; /* Basic font */
+          }
+
+          /* MODIFIED SECTION STYLE: Removed background, border-radius, shadow */
+          /* Added ID mainContentSection to easily target for hiding */
+          section#mainContentSection {
+             padding: 20px; /* Keep padding for spacing */
+             margin: 50px auto; /* Center section with margin */
+             max-width: 800px; /* Limit width */
+             color: #f0f0f0; /* Lighter text color */
+             text-align: center; /* Center align text within the section */
+             position: relative; /* Needed for z-index or absolute positioning inside */
+             z-index: 1; /* Ensure section content is above video */
+          }
+
+          h1#mainHeading { /* Added ID */
+             text-align: center;
+             color: #e0e0e0;
+             text-shadow: 1px 1px 3px rgba(0,0,0,0.7); /* Added shadow for readability */
+          }
+          p#chromeOnlyMsg { /* Added ID */
+            text-align: center;
+            font-style: italic;
+            color: #ffcc80; /* Light orange color */
+            margin-bottom: 20px;
+             text-shadow: 1px 1px 3px rgba(0,0,0,0.5); /* Added shadow for readability */
+          }
+          /* Adjust input/select styles for contrast */
+          input[type="file"], select {
+             margin: 5px;
+             padding: 8px;
+             border-radius: 4px;
+             border: 1px solid #555;
+             background-color: #333;
+             color: #eee;
+          }
+          #start {
+            padding: 10px 18px;
+            background-color: black; /* Dark Orange */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+           }
+           #start:hover {
+              background-color: #cc7000; /* Darker Orange */
+           }
+
+           /* Feedback styles */
+            #feedbackBlock h2 {
+                color: #eee;
+                margin-top: 20px;
+                 text-shadow: 1px 1px 3px rgba(0,0,0,0.5); /* Added shadow for readability */
+            }
+            #feedback {
+                 width: 95%;
+                 max-width: 500px; /* Limit width for better centering */
+                 padding: 10px;
+                 margin: 5px auto 0 auto; /* Center textarea */
+                 border-radius: 5px;
+                 border: 1px solid #555;
+                 background-color: #333;
+                 color: #eee;
+                 resize: vertical;
+                 display: block; /* Make it block for margin auto to work */
+            }
+            #submitFeedback {
+                margin-top: 10px;
+                padding: 8px 15px;
+                background-color: #007bff;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+                margin: 10px 5px; /* Added margin */
+            }
+            #submitFeedback:hover {
+                 background-color: #0056b3;
+            }
+            #thankYouMessage {
+                margin-top: 15px;
+                font-weight: bold;
+                font-size: 1.2em; /* Make it slightly larger */
+                color: #90ee90; /* Light Green */
+                text-shadow: 1px 1px 3px rgba(0,0,0,0.5); /* Added shadow for readability */
+                text-align: center; /* Ensure centered */
+            }
+
+            /* Interview Container styling - ADDING background for contrast */
+            #container {
+                background-color: rgba(50, 50, 50, 0.7); /* Darker semi-transparent */
+                padding: 15px;
+                border-radius: 8px;
+                color: #f0f0f0;
+                margin-top: 20px;
+                text-align: left; /* Align text left inside this container */
+            }
+            .texts p {
+                 margin-bottom: 10px;
+                 line-height: 1.5;
+            }
+             #answerComplete, #stop {
+                 padding: 10px 15px;
+                 margin: 10px 5px 0 5px;
+                 border: none;
+                 border-radius: 5px;
+                 color: white;
+                 cursor: pointer;
+                 font-size: 0.95em;
+                 transition: background-color 0.3s ease;
+             }
+             #answerComplete { background-color: #28a745; }
+             #stop { background-color: #dc3545; }
+             #answerComplete:hover { background-color: #218838; }
+             #stop:hover { background-color: #c82333; }
+             #answerComplete:disabled, #stop:disabled {
+                 background-color: #6c757d;
+                 cursor: not-allowed;
+             }
+            /* Ensure ATS/Tips display centrally */
+             #atsDisplaySection {
+                 text-align: center;
+             }
+
+             #postInterviewSection {
+                 /* Styles already center content */
+                 /* Ensure it takes up necessary space when visible */
+                 margin: 50px auto; /* Use similar margin as main section */
+                 max-width: 800px; /* Limit width */
+                 text-align: center; /* Center align inner elements */
+                 padding: 20px;
+                 /* Optional: Add a subtle background for contrast if needed when ONLY this is shown */
+                 /* background-color: rgba(40, 40, 40, 0.6); */
+                 /* border-radius: 8px; */
+             }
+             /* Style the buttons container for better layout */
+             #postInterviewButtons {
+                 margin-top: 20px;
+                 display: flex; /* Use flexbox for alignment */
+                 justify-content: center; /* Center buttons horizontally */
+                 flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+             }
+
 
     </style>
 </head>
@@ -47,16 +286,23 @@
 <body>
     <!-- Video Element for Background -->
     <div id="backgroundVideoContainer">
-        <video id="backgroundVideo" autoplay muted loop>
-          <!-- Provide a valid path to your video file -->
+        <!-- REMOVED autoplay attribute -->
+        <video id="backgroundVideo" muted loop poster="fallback_image.jpg">
           <source src="video1.mp4" type="video/mp4">
           Your browser does not support the video tag.
         </video>
       </div>
 
-    <section>
-        <h1>Virtual AI Interviewer</h1>
-        <p>Available In Chrome Only</p>
+    <!-- NEW Practice Introduction Button -->
+    <!-- Added an ID for easier JS selection -->
+    <a href="practice.html" target="_blank" class="practice-intro-btn" id="practiceLink">Practice Introduction ✨</a>
+
+    <!-- Added ID mainContentSection -->
+    <section id="mainContentSection">
+        <!-- Added ID mainHeading -->
+        <h1 id="mainHeading">Virtual AI Interviewer</h1>
+        <!-- Added ID chromeOnlyMsg -->
+        <p id="chromeOnlyMsg">Available In Chrome Only</p>
 
         <!-- 1. Upload Section -->
         <div id="uploadSection">
@@ -69,53 +315,179 @@
                 <option value="application development technical interview">Application Development Technical Interview</option>
                 <option value="Resume Based Interview">Resume Based Interview</option>
             </select>
-            <button id="start">Analyze Resume & Prepare</button> <!-- Changed Button Text -->
+            <br>
+            <button id="start" style="margin-top: 10px;">Analyze Resume & Prepare</button>
         </div>
 
         <!-- Loading Indicator -->
-        <div id="loadingIndicator" style="display: none;">Processing...</div>
+        <div id="loadingIndicator" style="display: none; text-align: center;">Processing...</div>
 
         <!-- 2. ATS Score and Proceed Section -->
         <div id="atsDisplaySection" style="display: none;">
-             <div id="atsScoreDisplay">
-                 <!-- ATS Score will be loaded here -->
-             </div>
-             <div id="atsTipsDisplay">
-                 <!-- ATS Tips will be loaded here -->
-             </div>
-             <button id="proceedInterviewBtn">Start Interview</button> <!-- New Proceed Button -->
+             <div id="atsScoreDisplay"></div>
+             <div id="atsTipsDisplay"></div>
+             <button id="proceedInterviewBtn">Start Interview</button>
         </div>
 
         <!-- 3. Interview Container -->
         <div id="container" style="display:none;">
-            <div class="texts">
-                <!-- Questions and Answers will appear here -->
+            <div class="texts"></div>
+            <div style="text-align: center; margin-top: 15px;">
+                <button id="answerComplete" disabled>Complete Answer</button>
+                <button id="stop" disabled>Stop Interview</button>
             </div>
-            <button id="answerComplete" disabled>Complete Answer</button>
-            <button id="stop" disabled>Stop Interview</button>
         </div>
+    </section> <!-- End of mainContentSection -->
 
-        <!-- 4. Post-Interview Section -->
-        <div id="postInterviewSection" style="display: none;">
-             <div id="thankYouMessage"></div>
-             <!-- Feedback Section -->
-             <div id="feedbackBlock">
-                 <h2>Feedback</h2>
-                 <textarea id="feedback" rows="4" cols="50" placeholder="Please provide your feedback here..."></textarea>
-                 <button id="submitFeedback">Submit Feedback</button>
+    <!-- 4. Post-Interview Section (Now outside the main section for easier hiding of the main one) -->
+    <!-- This section will ONLY be shown after stopping or normal completion -->
+    <div id="postInterviewSection" style="display: none;">
+         <div id="thankYouMessage"></div> <!-- Will show 'Interview Completed!' or feedback thank you -->
+         <div id="feedbackBlock">
+             <h2>Feedback</h2>
+             <textarea id="feedback" rows="4" placeholder="Please provide your feedback here..."></textarea>
+             <br>
+             <button id="submitFeedback">Submit Feedback</button>
+         </div>
+         <!-- Container for Download and Back buttons -->
+         <div id="postInterviewButtons">
+             <div id="downloadButton"> <!-- Existing div -->
+                 <button id="downloadPdfBtn"> Download Summary PDF</button>
              </div>
-             <!-- Download Button Area -->
-             <div id="downloadButton">
-                 <!-- Changed button inside div to have ID -->
-                 <button id="downloadPdfBtn" class="downloadButton1"> Download Summary PDF</button>
+             <!-- NEW Back to Home Button -->
+             <div> <!-- Wrapper div for spacing consistency -->
+                 <button id="backToHomeBtn"> Back to Home</button>
              </div>
-        </div>
+         </div>
+    </div>
 
-    </section>
 
     <!-- jsPDF Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Your main script -->
     <script src="./main.js"></script>
+
+    <!-- Inline Script for Video Persistence AND Stop Button Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Video Persistence Logic (Existing) ---
+            const video = document.getElementById('backgroundVideo');
+            const practiceLink = document.getElementById('practiceLink');
+            const videoTimeKey = 'videoPlaybackTime'; // Key for sessionStorage
+
+            if (!video) {
+                console.error("Background video element not found!");
+            } else {
+                // Function to start video playback
+                const playVideo = () => {
+                    const playPromise = video.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.warn("Video autoplay prevented:", error);
+                        });
+                    }
+                };
+
+                // Check sessionStorage on load
+                const savedTime = sessionStorage.getItem(videoTimeKey);
+                if (savedTime) {
+                    const time = parseFloat(savedTime);
+                    if (!isNaN(time)) {
+                        video.addEventListener('loadedmetadata', () => {
+                            video.currentTime = time;
+                            console.log(`Resuming video at ${time.toFixed(2)} seconds.`);
+                            playVideo();
+                        }, { once: true });
+                        if (video.readyState >= video.HAVE_METADATA) {
+                             video.currentTime = time;
+                             console.log(`Resuming video immediately at ${time.toFixed(2)} seconds.`);
+                             playVideo();
+                        }
+                    } else {
+                         playVideo();
+                    }
+                } else {
+                    playVideo();
+                }
+
+                 // Save time when clicking the practice link
+                 if (practiceLink) {
+                    practiceLink.addEventListener('click', () => {
+                        if (video) {
+                            sessionStorage.setItem(videoTimeKey, video.currentTime);
+                            console.log(`Saved video time: ${video.currentTime.toFixed(2)}`);
+                        }
+                    });
+                }
+            } // End of video logic block
+
+
+            // --- NEW: Stop Button Logic ---
+            const stopButton = document.getElementById('stop');
+            const backToHomeButton = document.getElementById('backToHomeBtn');
+
+            // Get references to elements to HIDE
+            const mainContentSection = document.getElementById('mainContentSection'); // The whole main part
+            const practiceLinkElement = document.getElementById('practiceLink'); // Practice button outside the section
+
+            // Get reference to elements to SHOW
+            const postInterviewSection = document.getElementById('postInterviewSection');
+            const thankYouMessage = document.getElementById('thankYouMessage');
+            // feedbackBlock, downloadPdfBtn, backToHomeBtn are already inside postInterviewSection
+
+            if (stopButton && mainContentSection && practiceLinkElement && postInterviewSection && thankYouMessage && backToHomeButton) {
+                stopButton.addEventListener('click', () => {
+                    console.log("Stop Interview button clicked.");
+
+                    // --- HIDE EVERYTHING UNNECESSARY ---
+                    // Hide the main content section entirely
+                    mainContentSection.style.display = 'none';
+
+                    // Hide the practice link specifically (as it's outside the section)
+                    practiceLinkElement.style.display = 'none';
+
+                    // --- SHOW ONLY THE POST-INTERVIEW ELEMENTS ---
+                    // Set the completion message
+                    thankYouMessage.textContent = "Interview Completed!";
+                    thankYouMessage.style.display = 'block'; // Ensure it's visible
+
+                    // Show the entire post-interview section
+                    postInterviewSection.style.display = 'block';
+
+                    // Optional: Hide the submit feedback button if feedback isn't desired after stopping early
+                    // const submitFeedbackBtn = document.getElementById('submitFeedback');
+                    // if(submitFeedbackBtn) submitFeedbackBtn.style.display = 'none';
+
+                    // Optional: Disable further actions if needed (e.g., disable stop button itself)
+                    stopButton.disabled = true;
+                    const answerCompleteButton = document.getElementById('answerComplete');
+                    if(answerCompleteButton) answerCompleteButton.disabled = true;
+
+                    // Optional: Scroll to the top or to the post-interview section
+                    window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top
+                    // postInterviewSection.scrollIntoView({ behavior: 'smooth' }); // Scroll to the section
+                });
+
+                // Add functionality to the Back to Home button
+                backToHomeButton.addEventListener('click', () => {
+                    // Navigate to the home page (assuming it's index.html or '/')
+                    window.location.href = '/'; // Or 'index.html'
+                    // If it should just reload the current page to reset state:
+                    // window.location.reload();
+                });
+
+            } else {
+                 console.error("Could not find one or more elements needed for stop button functionality.");
+                 // Log which elements are missing
+                 if (!stopButton) console.error("Missing: #stop");
+                 if (!mainContentSection) console.error("Missing: #mainContentSection");
+                 if (!practiceLinkElement) console.error("Missing: #practiceLink");
+                 if (!postInterviewSection) console.error("Missing: #postInterviewSection");
+                 if (!thankYouMessage) console.error("Missing: #thankYouMessage");
+                 if (!backToHomeButton) console.error("Missing: #backToHomeBtn");
+            }
+
+        }); // End of DOMContentLoaded
+    </script>
 </body>
 </html>
