@@ -43,7 +43,7 @@ let isAnalyzingAnswers = false; // NEW: Flag to prevent concurrent analysis
 
 // --- API Configuration ---
 // <!> IMPORTANT: Replace with your key. Using a backend proxy is STRONGLY recommended for production!
-const GEMINI_API_KEY = 'your api key'; // <<<<<<----- REPLACE THIS WITH YOUR ACTUAL KEY
+const GEMINI_API_KEY = 'AIzaSyA2GPUIDGRPdMy0uQUsdXBE7Gepgo1DJqI'; // <<<<<<----- REPLACE THIS WITH YOUR ACTUAL KEY
 // --- /API Configuration ---
 // Make sure the API key is replaced above before use!
 if (GEMINI_API_KEY === 'YOUR_GEMINI_API_KEY' || !GEMINI_API_KEY) {
