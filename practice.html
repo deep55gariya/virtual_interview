@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice Introduction - Analyzer</title> <!-- Updated Title -->
+    <!-- jsPDF Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        /* --- Existing Styles (Slightly modified for consistency) --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d0d0d;
+            color: white;
+            display: flex;
+            min-height: 100vh; /* Use min-height */
+            padding: 20px;
+            gap: 20px;
+            position: relative; /* Needed for absolute positioning of back button */
+        }
+
+        /* --- NEW Back Button Styles --- */
+        .back-btn {
+            position: absolute;
+            top: 25px; /* Adjusted position */
+            left: 25px;
+            padding: 8px 15px;
+            background: linear-gradient(145deg, #333, #111); /* Dark gradient */
+            color: #e0e0e0; /* Light grey text */
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            border: 1px solid #444; /* Subtle border */
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+            z-index: 100; /* Ensure it's above content */
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(145deg, #444, #222); /* Lighter gradient on hover */
+            color: white;
+            transform: translateY(-2px) scale(1.05); /* Lift and scale effect */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+         .back-btn:active {
+             transform: translateY(0) scale(1); /* Push down effect */
+             box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+         }
+
+
+        .main-content {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            /* max-height: calc(100vh - 40px); // Removed fixed height */
+            /* overflow-y: auto; // Removed internal scroll */
+            /* Scrollbar styles moved to body or html if needed globally */
+        }
+
+        .recording-section {
+            background: #111;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid #222;
+            padding-top: 40px; /* Add padding top to avoid overlap with back button */
+        }
+
+         .recording-section h2 {
+             margin-bottom: 15px;
+             color: #eee;
+             font-weight: 500;
+             margin-top: 10px; /* Added margin */
+         }
+
+        video {
+            width: 90%;
+            max-width: 640px;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            border-radius: 10px;
+            background: black;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+        }
+
+        .controls {
+            margin-top: 10px;
+        }
+
+        button { /* General button style */
+            background: #e53935;
+            border: none;
+            color: white;
+            padding: 10px 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        button:hover:not(:disabled) {
+            background: #f44336;
+            transform: translateY(-1px);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0px);
+        }
+
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            opacity: 0.7;
+            transform: none; /* Disable transform when disabled */
+        }
+
+        /* Report Section Styles */
+        .report-section {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            border: 1px solid #2a2a2a;
+        }
+
+        .report-section h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #eee;
+            font-weight: 600;
+            font-size: 1.4em;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+         #reportLoader {
+            text-align: center;
+            padding: 30px 20px;
+            font-style: italic;
+            color: #aaa;
+            display: none;
+            font-size: 1.1em;
+        }
+
+        .report-content {
+             display: none;
+        }
+
+        .report-part {
+            margin-bottom: 25px;
+            background: #222;
+            padding: 18px;
+            border-radius: 8px;
+            border-left: 4px solid #e53935;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .report-part h4 {
+            color: #ff7a7a;
+            margin-bottom: 12px;
+            font-size: 1.15em;
+            font-weight: 600;
+        }
+
+        .report-part pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Consolas', 'Menlo', 'Monaco', monospace;
+            font-size: 0.95em;
+            color: #ddd;
+            line-height: 1.65;
+            background-color: #282828;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+
+        /* Specific styling for report parts */
+        .report-part:nth-child(1) { border-left-color: #4CAF50; }
+        .report-part:nth-child(2) { border-left-color: #FFC107; }
+        .report-part:nth-child(3) { border-left-color: #2196F3; }
+        .report-part:nth-child(4) { border-left-color: #9C27B0; }
+        .report-part:nth-child(1) h4 { color: #81C784; }
+        .report-part:nth-child(2) h4 { color: #FFD54F; }
+        .report-part:nth-child(3) h4 { color: #64B5F6; }
+        .report-part:nth-child(4) h4 { color: #BA68C8; }
+
+        #downloadReportBtn { /* Specific style for download button */
+            background-color: #007bff; /* Blue */
+            display: block;
+            margin: 20px auto 0;
+            width: fit-content;
+        }
+        #downloadReportBtn:hover:not(:disabled) {
+            background-color: #0056b3; /* Darker blue */
+            transform: translateY(-1px);
+        }
+
+        /* Video List Section */
+        .video-list {
+            flex: 1;
+            background: #111;
+            padding: 20px;
+            border-radius: 10px;
+            /* height: calc(100vh - 40px); // Removed fixed height */
+            overflow-y: auto; /* Keep scroll if needed */
+            width: 300px;
+            min-width: 250px;
+            border: 1px solid #222;
+        }
+
+        .video-list h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #eee;
+            font-weight: 500;
+        }
+
+        .video-item {
+            position: relative;
+            padding: 10px 15px;
+            background: #2a2a2a;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background-color 0.2s ease;
+        }
+         .video-item:hover {
+             background-color: #333;
+         }
+
+         .video-item a {
+             color: #ffabab;
+             text-decoration: none;
+             flex-grow: 1;
+             margin-right: 10px;
+             overflow: hidden;
+             text-overflow: ellipsis;
+             white-space: nowrap;
+             font-size: 0.95em;
+         }
+          .video-item a:hover {
+              text-decoration: underline;
+          }
+
+        .video-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            color: #ccc;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            white-space: nowrap;
+            transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease; /* Added transform transition */
+        }
+        /* Styles for control buttons */
+        .control-btn.view { background: #4caf50; border-color: #4caf50; color: white; }
+        .control-btn.download { background: #007bff; border-color: #007bff; color: white; }
+        .control-btn.delete { background: #e53935; border-color: #e53935; color: white; }
+
+        .control-btn:hover {
+            opacity: 0.85;
+            transform: scale(1.05); /* Scale effect on hover */
+        }
+
+        /* --- Responsive Design Adjustments --- */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column; /* Stack elements vertically */
+                height: auto; /* Allow body height to grow */
+                padding-top: 60px; /* Add padding top to body for back button */
+            }
+            .main-content, .video-list {
+                flex: none; /* Reset flex property */
+                width: 100%; /* Make sections full width */
+                max-height: none; /* Remove height restrictions */
+                overflow-y: visible; /* Remove internal scrolling */
+                margin-bottom: 20px;
+            }
+            .video-list {
+                 min-width: unset; /* Remove min-width */
+                 height: 400px; /* Give video list a fixed height or max-height */
+                 overflow-y: auto; /* Allow scrolling within video list */
+            }
+            video {
+                width: 100%; /* Video takes full width of its container */
+            }
+            .back-btn {
+                top: 15px; /* Adjust position for smaller screens */
+                left: 15px;
+                padding: 6px 12px;
+                font-size: 0.8em;
+            }
+             .recording-section {
+                 padding-top: 20px; /* Reset padding if body padding is enough */
+             }
+             .recording-section h2 {
+                 font-size: 1.5em; /* Adjust heading size */
+             }
+        }
+
+        @media (max-width: 480px) {
+             /* Further adjustments for very small screens */
+            button {
+                 padding: 8px 14px;
+                 font-size: 0.9rem;
+            }
+            .report-part {
+                 padding: 15px;
+            }
+            .report-part h4 {
+                 font-size: 1.1em;
+            }
+            .report-part pre {
+                font-size: 0.9em;
+            }
+            .video-item a {
+                 font-size: 0.9em;
+            }
+            .control-btn {
+                font-size: 11px;
+                padding: 3px 6px;
+            }
+            .back-btn {
+                 top: 10px;
+                 left: 10px;
+            }
+             body {
+                 padding-top: 50px; /* Adjust body padding again */
+                 padding-left: 10px;
+                 padding-right: 10px;
+             }
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <!-- NEW Back Button -->
+    <a href="index.html" class="back-btn">← Back to Interviewer</a>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Video Recording Section -->
+        <div class="recording-section">
+            <h2>Practice Your Introduction</h2> <!-- Updated Heading -->
+            <video id="video" autoplay muted playsinline></video>
+            <div class="controls">
+                <button id="startBtn">Start Recording</button>
+                <button id="stopBtn" disabled>Stop Recording</button>
+            </div>
+        </div>
+
+        <!-- Report Section (Structure Updated) -->
+        <div class="report-section" id="reportSection">
+            <h3>Analysis Report</h3>
+            <div id="reportLoader">Generating Report... Please wait. This may take a moment.</div>
+            <div class="report-content" id="reportContent">
+                <!-- Report parts will be added here by JS -->
+            </div>
+             <button id="downloadReportBtn" disabled>Download Report as PDF</button>
+        </div>
+    </div>
+
+    <!-- Previous Videos Section -->
+    <div class="video-list">
+        <h3>Previous Recordings</h3> <!-- Updated Heading -->
+        <div id="videosContainer"></div>
+    </div>
+
+    <!-- JavaScript remains the same as you provided -->
+    <script>
+        const videoElement = document.getElementById("video");
+        const startBtn = document.getElementById("startBtn");
+        const stopBtn = document.getElementById("stopBtn");
+        const videosContainer = document.getElementById("videosContainer");
+        const reportSection = document.getElementById("reportSection");
+        const reportLoader = document.getElementById("reportLoader");
+        const reportContent = document.getElementById("reportContent");
+        const downloadReportBtn = document.getElementById("downloadReportBtn");
+
+        // --- API Key ---
+        // <!> CRITICAL: REPLACE with your actual Google Gemini API Key. <!>
+        // <!> WARNING: Hardcoding API keys is a security risk. Use only for local development. <!>
+        // <!> CONSIDER using a backend proxy for production environments. <!>
+        const geminiApiKey = "AIzaSyA2GPUIDGRPdMy0uQUsdXBE7Gepgo1DJqI"; // <<<<<< PASTE YOUR KEY HERE
+        // --- End API Key ---
+
+        let mediaRecorder;
+        let recordedChunks = [];
+        let stream;
+        let speechRecognition;
+        let currentTranscription = '';
+        let recognitionActive = false; // Flag to track if recognition should be active
+
+        // --- Variables to store parsed report parts ---
+        let reportData = {
+            original: '',
+            analysis: '',
+            grammar: '',
+            revision: '',
+            error: null
+        };
+
+
+        // --- Speech Recognition Setup (Same as before, robust) ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            speechRecognition = new SpeechRecognition();
+            speechRecognition.continuous = true;
+            speechRecognition.interimResults = true;
+            speechRecognition.lang = 'en-IN'; // Default to Indian English, CHANGE if needed
+            console.log(`Using speech recognition language: ${speechRecognition.lang}`);
+
+            speechRecognition.onresult = (event) => {
+                let interimTranscript = '';
+                let finalTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript.trim() + ' ';
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+                 finalTranscript = finalTranscript.trim();
+                 if (finalTranscript) {
+                     currentTranscription += finalTranscript + ' ';
+                 }
+            };
+
+            speechRecognition.onerror = (event) => {
+                console.error('Speech recognition error:', event.error, event.message);
+                let alertMsg = `Speech recognition error: ${event.error}`;
+                recognitionActive = false;
+
+                if (event.error === 'audio-capture') alertMsg = 'Error capturing audio. Check microphone permissions/hardware.';
+                else if (event.error === 'not-allowed' || event.error === 'service-not-allowed') alertMsg = 'Microphone access denied. Please allow microphone access.';
+                else if (event.error === 'network') alertMsg = "Network error during speech recognition. Check connection.";
+                else if (event.error === 'no-speech') alertMsg = null; // Common, don't alert
+                else if (event.error === 'aborted') alertMsg = null; // Intentional stop
+                else alertMsg = `Unknown speech recognition error: ${event.error}. Recognition stopped.`;
+
+                if (alertMsg) alert(alertMsg);
+
+                // If critical error, try to stop recording fully
+                if (['audio-capture', 'not-allowed', 'service-not-allowed'].includes(event.error)) {
+                    if (mediaRecorder && mediaRecorder.state === "recording") stopRecording();
+                    startBtn.disabled = true;
+                    stopBtn.disabled = true;
+                }
+            };
+
+            speechRecognition.onend = () => {
+                console.log("Speech recognition service ended.");
+                if (recognitionActive) {
+                    console.log("Attempting to restart recognition...");
+                    setTimeout(() => {
+                        if (recognitionActive) {
+                           try {
+                               speechRecognition.start();
+                               console.log("Recognition restarted.");
+                           } catch (error) {
+                               console.error("Error restarting recognition:", error);
+                               recognitionActive = false;
+                           }
+                        }
+                    }, 250);
+                }
+             };
+
+        } else {
+            alert("FATAL: Your browser does not support the Web Speech API. Speech analysis unavailable.");
+            startBtn.disabled = true;
+            startBtn.title = "Speech Recognition not supported";
+        }
+
+        // --- Camera/Media Recorder Functions (Same as before, robust) ---
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                videoElement.srcObject = stream;
+                videoElement.muted = true; // Mute local playback to avoid feedback loop
+                await videoElement.play(); // Ensure play() is awaited or handled
+                 return true;
+            } catch (err) {
+                 let errorMsg = "Could not access camera/microphone.";
+                 if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') errorMsg = "Camera/microphone access denied! Allow permissions.";
+                 else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') errorMsg = "No camera/microphone found.";
+                 else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') errorMsg = "Camera/microphone is busy or unreadable.";
+                 else errorMsg = `getUserMedia error: ${err.name}`;
+                 alert(errorMsg);
+                console.error("getUserMedia error details:", err);
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                return false;
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                console.log("Camera and Mic tracks stopped.");
+            }
+            videoElement.srcObject = null;
+            videoElement.pause(); // Explicitly pause
+            stream = null;
+        }
+
+         function setupMediaRecorder() {
+            if (!stream || !stream.active) {
+                console.error("Stream not available for MediaRecorder");
+                return false;
+            }
+             recordedChunks = [];
+             // Prioritize VP9/Opus in WebM if available
+             const mimeTypes = [
+                'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus',
+                'video/webm;codecs=h264,opus', 'video/mp4;codecs=h264,aac',
+                'video/webm', 'video/mp4'
+             ];
+             let selectedMimeType = mimeTypes.find(type => MediaRecorder.isTypeSupported(type)) || '';
+
+             if (!selectedMimeType) {
+                console.error("No suitable MediaRecorder mimeType supported.");
+                alert("Video recording format not supported by your browser.");
+                return false;
+             }
+             console.log("Using MediaRecorder mimeType:", selectedMimeType);
+
+            try {
+                 mediaRecorder = new MediaRecorder(stream, { mimeType: selectedMimeType });
+
+                 mediaRecorder.ondataavailable = event => {
+                    if (event.data && event.data.size > 0) recordedChunks.push(event.data);
+                 };
+
+                 mediaRecorder.onstop = () => {
+                    console.log("MediaRecorder stopped.");
+                    if (recordedChunks.length === 0) {
+                        console.warn("No data recorded.");
+                        return;
+                    }
+                    const blobType = selectedMimeType.split(';')[0];
+                    const blob = new Blob(recordedChunks, { type: blobType });
+                    const url = URL.createObjectURL(blob);
+                    addVideoToList(url, blob, blobType);
+                    recordedChunks = []; // Clear chunks after processing
+                 };
+
+                 mediaRecorder.onerror = (event) => {
+                    console.error("MediaRecorder error:", event.error);
+                    alert(`Recording error: ${event.error.name}`);
+                    if (recognitionActive) {
+                        recognitionActive = false;
+                        try { speechRecognition.stop(); } catch(e){}
+                    }
+                    if (!stopBtn.disabled) stopRecording(); // Try to stop gracefully
+                 };
+                return true;
+             } catch (error) {
+                 console.error("Failed to create MediaRecorder:", error);
+                 alert(`Failed to initialize video recorder: ${error.message}`);
+                 return false;
+             }
+         }
+
+        // --- Main Control Functions ---
+
+        async function startRecording() {
+             if (!geminiApiKey || geminiApiKey === "YOUR_GEMINI_API_KEY" || geminiApiKey.length < 30) {
+                 alert("CRITICAL ERROR: Google Gemini API Key is missing or invalid in the script.\nPlease edit the HTML file, add your key, and reload the page.");
+                 console.error("Gemini API Key is missing or invalid.");
+                 startBtn.style.backgroundColor = '#8B0000'; // Dark red to indicate critical error
+                 startBtn.title = "API Key is missing!";
+                 return;
+             }
+             startBtn.disabled = true;
+
+             const cameraStarted = await startCamera();
+             if (!cameraStarted) { startBtn.disabled = false; return; }
+
+             const recorderReady = setupMediaRecorder();
+             if (!recorderReady) { stopCamera(); startBtn.disabled = false; return; }
+
+             // Reset state for new recording
+             currentTranscription = '';
+             reportData = { original: '', analysis: '', grammar: '', revision: '', error: null }; // Reset report data
+             reportSection.style.display = 'none';
+             reportLoader.style.display = 'none';
+             reportContent.innerHTML = ''; // Clear previous report content
+             reportContent.style.display = 'none';
+             downloadReportBtn.disabled = true;
+             stopBtn.disabled = false;
+             recognitionActive = false; // Reset flag
+
+             try {
+                 mediaRecorder.start(1000); // Start recording
+                 console.log("MediaRecorder started:", mediaRecorder.state);
+             } catch (err) {
+                 console.error("MediaRecorder start failed:", err);
+                 alert(`Failed to start recording: ${err.message}`);
+                 stopCamera();
+                 startBtn.disabled = false;
+                 stopBtn.disabled = true;
+                 return;
+             }
+
+             if (speechRecognition) {
+                 try {
+                     currentTranscription = ''; // Ensure clear before starting
+                     speechRecognition.start();
+                     recognitionActive = true; // Set flag AFTER successful start
+                     console.log("Speech recognition starting.");
+                 } catch(err) {
+                     recognitionActive = false;
+                     if (err.name === 'InvalidStateError') {
+                         console.warn("Speech recognition already active?");
+                         recognitionActive = true; // Assume it's OK
+                     } else {
+                         console.error("Could not start speech recognition:", err);
+                         alert(`Warning: Speech recognition failed (${err.message}). Analysis may be unavailable.`);
+                     }
+                 }
+             } else {
+                  alert("Speech recognition is not available.");
+             }
+        }
+
+        function stopRecording() {
+             stopBtn.disabled = true;
+             recognitionActive = false; // Signal intentional stop
+             console.log("Stopping recording process...");
+
+             if (speechRecognition) {
+                 try { speechRecognition.stop(); console.log("Speech recognition stop requested."); }
+                 catch (err) { console.warn("Error stopping speech recognition:", err.message); }
+             }
+
+             if (mediaRecorder && mediaRecorder.state === "recording") {
+                try { mediaRecorder.stop(); console.log("MediaRecorder stop requested."); }
+                catch (err) { console.error("Error stopping MediaRecorder:", err); }
+             } else if (mediaRecorder) {
+                 console.warn("MediaRecorder not in recording state:", mediaRecorder.state);
+             } else {
+                 console.warn("MediaRecorder object not found during stop.");
+             }
+
+             // Allow a moment for final speech result and recorder onstop
+             setTimeout(() => {
+                 reportSection.style.display = 'block';
+                 reportLoader.style.display = 'block';
+                 reportContent.innerHTML = ''; // Clear previous content
+                 reportContent.style.display = 'none';
+                 downloadReportBtn.disabled = true; // Disable download initially
+
+                 const finalTranscript = currentTranscription.trim();
+                 console.log("Final Transcript for analysis:", finalTranscript);
+
+                 if (finalTranscript.length > 10 && geminiApiKey && geminiApiKey !== "YOUR_GEMINI_API_KEY") { // Added length check
+                     console.log("Transcript sufficient, generating report...");
+                     generateAndDisplayReport(finalTranscript); // Call the new function
+                 } else {
+                     let reason = !finalTranscript.length > 10 ? "Transcript too short or no speech detected" : "API Key missing/invalid";
+                     reportLoader.innerText = `${reason}. Cannot generate report.`;
+                     console.warn(`${reason}. Skipping report generation.`);
+                     // Hide loader after a delay if no report generated
+                     setTimeout(() => {
+                        if (reportLoader.innerText.includes("Cannot generate report")) {
+                             reportLoader.style.display = 'none';
+                             reportSection.style.display = 'none';
+                        }
+                     }, 4000);
+                      stopCamera(); // Stop camera if no report
+                      startBtn.disabled = false; // Re-enable start button
+                 }
+                 // Note: generateAndDisplayReport handles camera stop and button re-enable in its finally block
+             }, 350); // Increased delay slightly
+
+        } // End of stopRecording
+
+        startBtn.addEventListener("click", startRecording);
+        stopBtn.addEventListener("click", stopRecording);
+
+
+        // --- MODIFIED Report Generation & Display (Same as before) ---
+        async function generateAndDisplayReport(textToAnalyze) {
+             if (!geminiApiKey || geminiApiKey === "YOUR_GEMINI_API_KEY" || geminiApiKey.length < 30) {
+                 reportLoader.innerText = "Gemini API Key is missing or invalid.";
+                 console.error("generateReport called with invalid API Key.");
+                 reportData.error = "API Key missing or invalid.";
+                 displayReportContent();
+                 return;
+             }
+
+             const modelName = "gemini-1.5-flash-latest";
+             const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiApiKey}`;
+             console.log("Calling Gemini API:", API_URL.replace(geminiApiKey, "YOUR_API_KEY_HIDDEN"));
+
+             const prompt = `
+            Analyze the following speech transcript professionally. Provide feedback in FOUR distinct parts based *only* on the provided transcript text.
+
+            Transcript Provided:
+            "${textToAnalyze}"
+
+            ---
+
+            Format your response EXACTLY like this, using Markdown bold for labels. Keep each section concise and actionable:
+
+            **Original Transcript:**
+            [Paste the original transcript here exactly as provided above.]
+
+            **Detailed Analysis & Feedback:**
+            [Provide a brief evaluation (2-4 sentences) of the transcript's overall clarity, coherence, flow, and professionalism. Mention any noticeable strengths or weaknesses like run-on sentences, filler words ('um', 'uh', 'like'), repetitiveness, or awkward phrasing.]
+
+            **Grammar & Phrasing Issues:**
+            [List 1-3 specific examples of grammatical errors or awkward phrasing found in the transcript. Quote the phrase briefly and suggest a correction if simple (e.g., "'I has been working' -> 'I have been working'"). If grammar is generally good, state "Grammar and phrasing appear mostly correct." Keep this section very brief and focused on concrete examples.]
+
+            **Suggested Revision:**
+            [Provide a revised version (or a key excerpt if the original is very long) of the transcript that addresses the main issues identified in the analysis and grammar sections. Focus on improving clarity, conciseness, and professionalism. Aim for a natural-sounding improvement.]
+
+            ---
+            Do NOT add any introductory/concluding remarks, greetings, or apologies. Just provide the four labeled parts. Ensure the **Original Transcript** section contains the unmodified text provided above.
+            `;
+
+             reportData = { original: '', analysis: '', grammar: '', revision: '', error: null };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        safetySettings: [
+                            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+                            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+                            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+                            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" }
+                         ],
+                         generationConfig: {
+                             temperature: 0.6,
+                             maxOutputTokens: 1024
+                          }
+                    })
+                });
+
+                if (!response.ok) {
+                     let errorBody = {}; let errorMessage = `API request failed: ${response.status} ${response.statusText}`;
+                     try { errorBody = await response.json(); } catch (e) { /* Ignore */ }
+                     errorMessage = errorBody?.error?.message || errorMessage;
+                     throw new Error(errorMessage);
+                }
+
+                const data = await response.json();
+                console.log("Gemini API Response Received:", data);
+
+                 const candidate = data?.candidates?.[0];
+                 if (candidate?.finishReason && !["STOP", "MAX_TOKENS"].includes(candidate.finishReason)) {
+                     let reason = candidate.finishReason;
+                     if (reason === "SAFETY") reason = `Blocked by safety filter (Reason: ${candidate.safetyRatings?.map(r=>r.category).join(', ') || 'Unknown'})`;
+                     reportData.error = `AI generation issue: ${reason}.`;
+                     console.warn(`Gemini generation finished unexpectedly: ${reason}`);
+                 } else if (candidate?.content?.parts?.[0]?.text) {
+                     const fullResponseText = candidate.content.parts[0].text;
+
+                     const parseSection = (label) => {
+                         const escapedLabel = label.replace(/\*/g, '\\*');
+                         const regex = new RegExp(`${escapedLabel}:?\\s*([\\s\\S]*?)(?=\\n\\*\\*|$)`, 'i');
+                         const match = fullResponseText.match(regex);
+                         return match?.[1]?.trim() ?? null;
+                     };
+
+                     reportData.original = parseSection("**Original Transcript") ?? textToAnalyze;
+                     reportData.analysis = parseSection("**Detailed Analysis & Feedback");
+                     reportData.grammar = parseSection("**Grammar & Phrasing Issues");
+                     reportData.revision = parseSection("**Suggested Revision");
+
+                     if (!reportData.analysis || !reportData.grammar || !reportData.revision) {
+                         console.warn("Parsing failed for one or more sections. Check AI response format.");
+                         if (!reportData.error) {
+                             reportData.error = "Could not fully parse the AI response structure. Displaying raw response in Analysis section.";
+                             reportData.analysis = fullResponseText;
+                             reportData.grammar = reportData.grammar ?? "(Parsing Error)";
+                             reportData.revision = reportData.revision ?? "(Parsing Error)";
+                         }
+                     } else {
+                         console.log("Report content parsed successfully.");
+                     }
+
+                 } else {
+                    reportData.error = "Received an empty or unexpected response structure from the API.";
+                    console.error("Unexpected API response structure:", data);
+                 }
+
+            } catch (error) {
+                console.error("Error during report generation:", error);
+                reportData.error = `Error generating report:\n${error.message}\n(Check console, API key, quota, model: ${modelName})`;
+            } finally {
+                displayReportContent();
+                stopCamera();
+                startBtn.disabled = false;
+                console.log("Camera stopped & Start button enabled after report generation attempt.");
+            }
+        } // End of generateAndDisplayReport
+
+        // --- NEW Function to Display Parsed Report Content (Same as before) ---
+        function displayReportContent() {
+             reportLoader.style.display = 'none';
+             reportContent.innerHTML = '';
+             reportContent.style.display = 'block';
+
+             const createReportPart = (title, content, id) => {
+                 const partDiv = document.createElement('div');
+                 partDiv.className = 'report-part';
+                 const heading = document.createElement('h4');
+                 heading.textContent = title;
+                 const pre = document.createElement('pre');
+                 pre.id = id;
+                 pre.textContent = content || '(Not available)';
+                 partDiv.appendChild(heading);
+                 partDiv.appendChild(pre);
+                 reportContent.appendChild(partDiv);
+             };
+
+             if (reportData.error) {
+                 createReportPart('Error Generating Report', reportData.error, 'errorText');
+                 downloadReportBtn.disabled = true;
+             } else {
+                 createReportPart('Original Transcript', reportData.original, 'originalText');
+                 createReportPart('Detailed Analysis & Feedback', reportData.analysis, 'analysisText');
+                 createReportPart('Grammar & Phrasing Issues', reportData.grammar, 'grammarText');
+                 createReportPart('Suggested Revision', reportData.revision, 'revisedText');
+                 downloadReportBtn.disabled = false;
+             }
+        }
+
+
+        // --- Video List Management (Same as before, robust) ---
+        function addVideoToList(url, blob, mimeType) {
+             const videoItem = document.createElement("div");
+             videoItem.className = "video-item";
+             const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+             const videoName = `Recording ${timestamp}`;
+
+             const videoLink = document.createElement("a");
+             videoLink.href = url; videoLink.innerText = videoName; videoLink.title = `View ${videoName}`; videoLink.target = "_blank";
+
+             const controlsDiv = document.createElement("div"); controlsDiv.className = "video-controls";
+
+             const fileExtension = mimeType.includes('mp4') ? 'mp4' : 'webm';
+             const downloadFileName = `Recording_${new Date().toISOString().replace(/[-:T.]/g, "").slice(0,15)}.${fileExtension}`;
+
+             function createControlButton(text, className, title, clickHandler) {
+                 const btn = document.createElement("button");
+                 btn.className = `control-btn ${className}`; btn.innerText = text; btn.title = title;
+                 btn.onclick = (e) => { e.stopPropagation(); clickHandler(); }; // Prevent link click
+                 return btn;
+             }
+
+             const viewBtn = createControlButton("View", "view", `View ${videoName}`, () => window.open(url, "_blank"));
+             const downloadBtn = createControlButton("Download", "download", `Download ${videoName}`, () => {
+                 const a = document.createElement("a"); a.style.display = 'none'; a.href = url; a.download = downloadFileName;
+                 document.body.appendChild(a); a.click(); document.body.removeChild(a);
+             });
+             // Added distinct "delete" class for styling
+             const deleteBtn = createControlButton("Delete", "delete", `Delete ${videoName}`, () => {
+                 if (confirm(`Delete "${videoName}"? This cannot be undone.`)) {
+                    videosContainer.removeChild(videoItem); URL.revokeObjectURL(url);
+                    console.log(`Deleted video: ${videoName}`);
+                 }
+             });
+
+             controlsDiv.appendChild(viewBtn); controlsDiv.appendChild(downloadBtn); controlsDiv.appendChild(deleteBtn);
+             videoItem.appendChild(videoLink); videoItem.appendChild(controlsDiv);
+             videosContainer.insertBefore(videoItem, videosContainer.firstChild); // Add to top
+             console.log(`Added video to list: ${videoName}`);
+        }
+
+        // --- *** MODIFIED Download Report Functionality (Uses jsPDF) *** ---
+        downloadReportBtn.addEventListener('click', () => {
+            if (downloadReportBtn.disabled || reportData.error) return;
+            if (!reportData.original && !reportData.analysis && !reportData.grammar && !reportData.revision) {
+                alert("Cannot download empty report data."); return;
+            }
+
+            try {
+                // Check if jsPDF is loaded
+                if (typeof window.jspdf === 'undefined' || typeof window.jspdf.jsPDF === 'undefined') {
+                    alert("Error: jsPDF library not loaded. Cannot generate PDF.");
+                    console.error("jsPDF library not found on window.jspdf");
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf; // Access jsPDF from the global scope
+                const doc = new jsPDF();
+
+                let y = 15; // Initial Y position (top margin)
+                const x = 15; // Left margin
+                const lineSpacing = 7; // Spacing between lines of text
+                const sectionSpacing = 10; // Extra vertical space between report sections
+                const pageMaxWidth = doc.internal.pageSize.getWidth() - x * 2; // Max width for text wrapping within margins
+
+                // --- Helper function to add text with wrapping and styling ---
+                const addWrappedText = (text, isBold = false, fontSize = 11, isHeading = false) => {
+                    doc.setFont('helvetica', isBold ? 'bold' : 'normal');
+                    doc.setFontSize(fontSize);
+
+                    // Replace common markdown-like symbols that might interfere if not intended
+                    const cleanedText = (text || '(Not available)')
+                                        .replace(/[*_`]/g, ''); // Remove *, _, `
+
+                    const lines = doc.splitTextToSize(cleanedText, pageMaxWidth);
+
+                    lines.forEach((line, index) => {
+                        // Check if adding this line exceeds page height, add new page if needed
+                        // Add a small buffer (e.g., 15) for bottom margin
+                        if (y + lineSpacing > doc.internal.pageSize.getHeight() - 15) {
+                            doc.addPage();
+                            y = 15; // Reset Y for new page
+                            // If it's a heading split across pages, re-apply style
+                             if(isHeading) {
+                                 doc.setFont('helvetica', 'bold');
+                                 doc.setFontSize(fontSize);
+                             }
+                        }
+                        doc.text(line, x, y);
+                        y += lineSpacing;
+                    });
+                    // Add a bit of extra space after the block of text unless it's the very last line of a heading
+                    if (!isHeading || lines.length > 1) {
+                         y += lineSpacing / 2;
+                    }
+                };
+
+                // --- Document Title ---
+                doc.setFontSize(18);
+                doc.setFont('helvetica', 'bold');
+                doc.text(`Introduction Practice - Analysis Report`, doc.internal.pageSize.getWidth() / 2, y, { align: 'center' }); // Updated PDF Title
+                y += lineSpacing * 2; // Extra space after main title
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`Generated: ${new Date().toLocaleString()}`, doc.internal.pageSize.getWidth() / 2, y, { align: 'center' });
+                y += sectionSpacing * 1.5; // Space before first section
+
+                // --- Report Sections ---
+                // Section 1: Original Transcript
+                addWrappedText("Original Transcript", true, 14, true); // Heading
+                y += lineSpacing / 2; // Little space before content
+                addWrappedText(reportData.original, false, 11); // Content
+                y += sectionSpacing; // Space before next section
+
+                // Section 2: Detailed Analysis & Feedback
+                addWrappedText("Detailed Analysis & Feedback", true, 14, true);
+                y += lineSpacing / 2;
+                addWrappedText(reportData.analysis, false, 11);
+                y += sectionSpacing;
+
+                // Section 3: Grammar & Phrasing Issues
+                addWrappedText("Grammar & Phrasing Issues", true, 14, true);
+                y += lineSpacing / 2;
+                addWrappedText(reportData.grammar, false, 11);
+                y += sectionSpacing;
+
+                // Section 4: Suggested Revision
+                addWrappedText("Suggested Revision", true, 14, true);
+                y += lineSpacing / 2;
+                addWrappedText(reportData.revision, false, 11);
+                // No extra spacing needed after the last section
+
+                // --- Save the PDF ---
+                const pdfFileName = `Introduction_Analysis_Report_${new Date().toISOString().replace(/[-:T.]/g, "").slice(0,15)}.pdf`; // Updated filename
+                doc.save(pdfFileName);
+                console.log("PDF report download initiated.");
+
+            } catch (error) {
+                console.error("Error generating PDF:", error);
+                alert("Failed to generate PDF report. Check the console for details.");
+            }
+        });
+        // --- *** END MODIFIED Download Report Functionality *** ---
+
+
+        // --- Initial Setup (Same as before) ---
+        function initializeApp() {
+            console.log("Practice Analyzer Initializing..."); // Updated log message
+             if (!geminiApiKey || geminiApiKey === "YOUR_GEMINI_API_KEY" || geminiApiKey.length < 30) {
+                 console.error("CRITICAL: Google Gemini API Key not set. Report generation WILL FAIL.");
+                 alert("API Key is missing or invalid! Edit the HTML file, paste your key, and reload.");
+                 startBtn.disabled = true; startBtn.title = "API Key missing in code"; startBtn.style.backgroundColor = "#800";
+             } else {
+                 console.log("API Key found (basic check passed).");
+             }
+             // Ensure buttons are in correct initial state
+             stopBtn.disabled = true;
+             downloadReportBtn.disabled = true;
+             reportSection.style.display = 'none';
+             reportLoader.style.display = 'none';
+             reportContent.style.display = 'none';
+             console.log("Ready. Press Start Recording.");
+        }
+
+        // Run initialization on load
+        window.addEventListener('load', initializeApp);
+
+    </script>
+
+</body>
+</html>
