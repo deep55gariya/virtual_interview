@@ -23,7 +23,7 @@ section {
     display: flex;
     align-items: center;
     justify-content: center;
-    /* background-color: rgba(0, 0, 0, 0.8); */
+    
     
     flex-direction: column;
     padding: 50px 20px;
@@ -150,7 +150,6 @@ input[type="file"]:hover {
 
 #downloadButton {
     display: none;
-    background-color: #4CAF50;
     border: none;
     color: white;
     padding: 15px 32px;
